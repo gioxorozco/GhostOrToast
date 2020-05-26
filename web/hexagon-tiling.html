@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hexagon Tiling</title>
+	<style>
+			body { margin: 0; }
+			canvas { display: block; }
+	</style>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+<script>
+
+	// TODO: Calculate numHex based on screen size and radius
+	// TODO: Animate the hexagons by increasing numHex through each animation loop to add a cool increasing tiling effect
+	const radius = .25; // Distance from center of hexagon to vertex
+	const numHex = 40; // Number of hexagons width- and height-wise
+	const size = Math.sqrt(Math.pow(2*radius, 2) - Math.pow(radius, 2)); //Horizontal width
+
+	var scene = new THREE.Scene();
+	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+	var renderer = new THREE.WebGLRenderer();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.body.appendChild( renderer.domElement );
+
+	var hexArr = []; // Empty array to input path points for each hexagon to render later
+	var x = -Math.floor(numHex/2) * size; // x value of top vertex of center hexagon
+	var y = Math.floor(numHex/2) * (3/2)*radius + radius; // y value of top vertex of center hexagon
+	var k = 0; // Used to iterate through hexArr
+
+	var path = new THREE.Path();
+
+	for(var i = 0; i < numHex; i++)
+	{
+		// TODO: Explain tiling pattern based on hex sheet
+
+		// Checks, according to numHex, where x position should be to follow tiling patterns and keep
+		// existing hexagons from moving positions while rows and columns of hexagons increases.
+		// Center hexagon will never move and tiling of other hexagons is based on center, but this
+		// function generates hexagons from top left to bottom right, so this checks based on both the
+		// total number of rows and columns (numHex) and on which row i the loop is currently on, what the
+		// value of x should be to help center hexagon maintain its position.
+
+		if((Math.floor(numHex/2) - i) % 2 == 0)
+		{
+			x = -Math.floor(numHex/2) * size;
+		}
+		else
+		{
+			x = -Math.floor(numHex/2) * size - size/2;
+		}
+
+		for(var j = 0; j < numHex; j++)
+		{
+			path = new THREE.Path();
+
+			// TODO: Add some sort of GUI that will allow user to mess with values inside lineTo statements.
+			// I've been playing around with it and have found a couple of cool configs, if I'm reading this
+			// in the future, just remember the one that kinda looks like a bunch of rows of fences and the
+			// one that kinda looked like waves. Maybe I could animate the adjustment of the values to make
+			// something that looks kinda trippy while it changes from one to another
+
+			// Path to make a hexagon
+			path.moveTo(x, y);
+			path.lineTo(x + size/2, y - radius/2);
+			path.lineTo(x + size/2, y - (3/2)*radius);
+			path.lineTo(x, y - 2*radius);
+			path.lineTo(x - size/2, y - (3/2)*radius);
+			path.lineTo(x - size/2, y - radius/2);
+			path.lineTo(x, y);
+
+			// Adds path to array
+			hexArr[k++] = path.getPoints();
+
+			x += size; // Moves to next hexagon
+		}
+
+		y -= (3/2)*radius; // Moves down to next row
+	}
+
+	// Iterates through hexArr to generate hexagon geometry, apply material, and add each hexagon to the scene
+	for(var i = 0; i < Math.pow(numHex, 2); i++)
+	{
+		var geometry = new THREE.BufferGeometry().setFromPoints(hexArr[i]);
+		var material = new THREE.LineBasicMaterial({ color: 0xffffff });
+		var line = new THREE.Line(geometry, material);
+		scene.add(line);
+	}
+
+	camera.position.z = 5;
+
+	var animate = function () {
+		requestAnimationFrame(animate);
+		renderer.render(scene, camera);
+	};
+
+	animate();
+
+</script>
+</body>
+</html>
