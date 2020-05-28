@@ -12,26 +12,30 @@
 <script>
 
 	// TODO: Calculate numHex based on screen size and radius
-	// TODO: Add a variable controlling gaps between each hexagon
+	// TODO: Document gap calculations (deeply for understanding, the math could probably be simplified)
 	// TODO: Add fill and stroke color
-	// TODO: Find a way to make the lines look more smooth
+	// TODO: Make sure polygons are considered whole objects, if not then find a way to make them whole objects for manipulation
 	// TODO: Click a hexagon to change color
 	// TODO: Drag entire map around
 	// TODO: Animate the hexagons by increasing numHex through each animation loop to add a cool increasing tiling effect
-	const radius = .25; // Distance from center of hexagon to vertex
-	const numHex = 40; // Number of hexagons width- and height-wise
+	const radius = .5; // Distance from center of hexagon to vertex
+	const gap = .125;
+	const xgap = gap/2;
+	const ygap = (Math.sqrt(3)/2)*gap;
 	const size = Math.sqrt(Math.pow(2*radius, 2) - Math.pow(radius, 2)); //Horizontal width
+	const numHex = 20; // Number of hexagons width- and height-wise
 
 	var scene = new THREE.Scene();
-	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, .1, 1000 );
 
-	var renderer = new THREE.WebGLRenderer();
+	// antialias: false gives it a cool retro look, consider it for style
+	var renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.body.appendChild( renderer.domElement );
 
 	var hexArr = []; // Empty array to input path points for each hexagon to render later
 	var x = -Math.floor(numHex/2) * size; // x value of top vertex of center hexagon
-	var y = Math.floor(numHex/2) * (3/2)*radius + radius; // y value of top vertex of center hexagon
+	var y = Math.floor(numHex/2) * (3/2)*radius + radius + Math.floor(numHex/2)*ygap; // y value of top vertex of center hexagon
 	var k = 0; // Used to iterate through hexArr
 
 	var path = new THREE.Path();
@@ -47,13 +51,16 @@
 		// total number of rows and columns (numHex) and on which row i the loop is currently on, what the
 		// value of x should be to help center hexagon maintain its position.
 
+		// Odd numHex in an even row or even numHex in an odd row
+		// Odd/even mismatches get shifted an extra size/2 to the left relative to center hexagon
+
 		if((Math.floor(numHex/2) - i) % 2 == 0)
 		{
-			x = -Math.floor(numHex/2) * size;
+			x = -Math.floor(numHex/2) * size - Math.floor(numHex/2) * gap;
 		}
 		else
 		{
-			x = -Math.floor(numHex/2) * size - size/2;
+			x = -Math.floor(numHex/2) * size - size/2 - Math.floor(numHex/2) * (2*Math.floor(numHex/2) + 1)/(2*Math.floor(numHex/2)) * gap;
 		}
 
 		for(var j = 0; j < numHex; j++)
@@ -78,10 +85,10 @@
 			// Adds path to array
 			hexArr[k++] = path.getPoints();
 
-			x += size; // Moves to next hexagon
+			x += size + gap; // Moves to next hexagon
 		}
 
-		y -= (3/2)*radius; // Moves down to next row
+		y -= (3/2)*radius + ygap; // Moves down to next row
 	}
 
 	// Iterates through hexArr to generate hexagon geometry, apply material, and add each hexagon to the scene
