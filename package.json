@@ -1,0 +1,29 @@
+{
+  "name": "ghostortoast",
+  "version": "1.0.0",
+  "description": "A JavaFX game I made in high school ported to Javascript using Three.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gioxorozco/GhostOrToast.git"
+  },
+  "author": "gioxorozco",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gioxorozco/GhostOrToast/issues"
+  },
+  "homepage": "https://github.com/gioxorozco/GhostOrToast#readme",
+  "dependencies": {
+    "three": "^0.116.1"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "ghost",
+    "toast",
+    "game"
+  ]
+}

@@ -14,18 +14,23 @@
 	// TODO: Calculate numHex based on screen size and radius
 	// TODO: Document gap calculations (deeply for understanding, the math could probably be simplified)
 	// TODO: Add fill and stroke color
+	// TODO: Figure out stroke color, background color, and individual hexagon color with shape instead of path
 	// TODO: Make sure polygons are considered whole objects, if not then find a way to make them whole objects for manipulation
 	// TODO: Click a hexagon to change color
 	// TODO: Drag entire map around
 	// TODO: Animate the hexagons by increasing numHex through each animation loop to add a cool increasing tiling effect
 	const radius = .5; // Distance from center of hexagon to vertex
-	const gap = .125;
+	const gap = .01;
 	const xgap = gap/2;
 	const ygap = (Math.sqrt(3)/2)*gap;
 	const size = Math.sqrt(Math.pow(2*radius, 2) - Math.pow(radius, 2)); //Horizontal width
-	const numHex = 20; // Number of hexagons width- and height-wise
+	console.log(window.innerWidth);
+	console.log(window.innerHeight);
+	console.log(size);
+	const numHex = 21; // Number of hexagons width- and height-wise
 
 	var scene = new THREE.Scene();
+	scene.background = new THREE.Color( 0xffffff );
 	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, .1, 1000 );
 
 	// antialias: false gives it a cool retro look, consider it for style
@@ -38,7 +43,7 @@
 	var y = Math.floor(numHex/2) * (3/2)*radius + radius + Math.floor(numHex/2)*ygap; // y value of top vertex of center hexagon
 	var k = 0; // Used to iterate through hexArr
 
-	var path = new THREE.Path();
+	var shape = new THREE.Shape();
 
 	for(var i = 0; i < numHex; i++)
 	{
@@ -65,7 +70,7 @@
 
 		for(var j = 0; j < numHex; j++)
 		{
-			path = new THREE.Path();
+			shape = new THREE.Shape();
 
 			// TODO: Add some sort of GUI that will allow user to mess with values inside lineTo statements.
 			// I've been playing around with it and have found a couple of cool configs, if I'm reading this
@@ -74,16 +79,16 @@
 			// something that looks kinda trippy while it changes from one to another
 
 			// Path to make a hexagon
-			path.moveTo(x, y);
-			path.lineTo(x + size/2, y - radius/2);
-			path.lineTo(x + size/2, y - (3/2)*radius);
-			path.lineTo(x, y - 2*radius);
-			path.lineTo(x - size/2, y - (3/2)*radius);
-			path.lineTo(x - size/2, y - radius/2);
-			path.lineTo(x, y);
+			shape.moveTo(x, y);
+			shape.lineTo(x + size/2, y - radius/2);
+			shape.lineTo(x + size/2, y - (3/2)*radius);
+			shape.lineTo(x, y - 2*radius);
+			shape.lineTo(x - size/2, y - (3/2)*radius);
+			shape.lineTo(x - size/2, y - radius/2);
+			shape.lineTo(x, y);
 
 			// Adds path to array
-			hexArr[k++] = path.getPoints();
+			hexArr[k++] = shape;
 
 			x += size + gap; // Moves to next hexagon
 		}
@@ -94,10 +99,10 @@
 	// Iterates through hexArr to generate hexagon geometry, apply material, and add each hexagon to the scene
 	for(var i = 0; i < Math.pow(numHex, 2); i++)
 	{
-		var geometry = new THREE.BufferGeometry().setFromPoints(hexArr[i]);
-		var material = new THREE.LineBasicMaterial({ color: 0xffffff });
-		var line = new THREE.Line(geometry, material);
-		scene.add(line);
+		var geometry = new THREE.ShapeGeometry(hexArr[i]);
+		var material = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+		var mesh = new THREE.Mesh( geometry, material ) ;
+		scene.add( mesh );
 	}
 
 	camera.position.z = 5;
@@ -108,6 +113,13 @@
 	};
 
 	animate();
+
+	window.addEventListener("resize", () => {
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		camera.aspect = window.innerWidth / window.innerHeight;
+
+		camera.updateProjectMatrix();
+	});
 
 </script>
 </body>
